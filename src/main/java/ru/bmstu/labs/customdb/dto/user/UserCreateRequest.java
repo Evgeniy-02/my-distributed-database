@@ -1,0 +1,24 @@
+package ru.bmstu.labs.customdb.dto.user;
+
+import io.leangen.graphql.annotations.GraphQLIgnore;
+import io.leangen.graphql.annotations.GraphQLNonNull;
+import lombok.Data;
+
+@Data
+public class UserCreateRequest extends UserRequest {
+
+    /*@Override
+    @GraphQLIgnore
+    public void setId(Long id) {
+    }*/
+
+    @Override
+    public void setName(@GraphQLNonNull String name) {
+        super.setName(name);
+    }
+
+    @Override
+    public void setEmail(@GraphQLNonNull String email) {
+        super.setEmail(email);
+    }
+}
