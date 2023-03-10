@@ -6,7 +6,6 @@ import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.bmstu.labs.customdb.dto.TransactionRequest;
 import ru.bmstu.labs.customdb.dto.user.UserCreateRequest;
 import ru.bmstu.labs.customdb.dto.user.UserRequest;
 import ru.bmstu.labs.customdb.dto.user.UserUpdateRequest;
@@ -18,33 +17,24 @@ import java.util.List;
 
 @Component
 @GraphQLApi
-public class UserGraphQLApi extends AbstractTransactionalGraphQLApi<User, UserRequest> {
+public class UserGraphQLApi implements CrudGraphQLApi<User, UserRequest, UserCreateRequest, UserUpdateRequest> {
+
+    private final UserService userService;
 
     private final Logger log = LoggerFactory.getLogger(UserGraphQLApi.class);
-    private UserService userService;
 
     public UserGraphQLApi(UserService userService) {
         this.userService = userService;
     }
 
-    /*@Override
-    @GraphQLQuery(name = "launch")
-    public LaunchResponse launch() {
-        return userService.launch();
-    }
-
     @Override
-    @GraphQLQuery(name = "terminate")
-    public TerminateResponse terminate() {
-        return userService.terminate();
-    }*/
-
-    @GraphQLQuery(name = "getUsers")
+    @GraphQLQuery(name = "users")
     public List<User> getEntities() throws LabServiceException {
         return userService.getEntities();
     }
 
-    @GraphQLQuery(name = "getUser")
+    @Override
+    @GraphQLQuery(name = "user")
     public User getEntity(Long id) throws LabServiceException {
         return userService.getEntity(id);
     }
@@ -62,12 +52,5 @@ public class UserGraphQLApi extends AbstractTransactionalGraphQLApi<User, UserRe
     @GraphQLMutation(name = "deleteUser")
     public User deleteEntity(Long id) throws LabServiceException {
         return userService.deleteEntity(id);
-    }
-
-    @Override
-    @GraphQLMutation(name = "transaction")
-    public List<User> transaction(List<TransactionRequest> requests) throws LabServiceException {
-        userService.transaction(requests);
-        return null;
     }
 }

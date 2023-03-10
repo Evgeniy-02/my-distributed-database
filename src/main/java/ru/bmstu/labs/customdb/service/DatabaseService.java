@@ -1,33 +1,57 @@
 package ru.bmstu.labs.customdb.service;
 
 import org.springframework.stereotype.Service;
-import ru.bmstu.labs.customdb.dto.LaunchResponse;
-import ru.bmstu.labs.customdb.dto.TerminateResponse;
+import ru.bmstu.labs.customdb.dto.transaction.TransactionResponse;
+import ru.bmstu.labs.customdb.issue.LabRepositoryException;
+import ru.bmstu.labs.customdb.issue.LabServiceException;
+import ru.bmstu.labs.customdb.repository.UserRepository;
 
 @Service
 public class DatabaseService {
 
-    private boolean isActivate = true;
+    private final UserRepository userRepository;
 
-    public TerminateResponse terminate() {
-        if (isActivate) {
-            isActivate = false;
-            return new TerminateResponse("SUCCESS");
+    private boolean transactionMode = false;
+
+    public DatabaseService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public boolean isTransactionMode() {
+        return this.transactionMode;
+    }
+
+    public TransactionResponse beginTransaction() {
+        if (!transactionMode) {
+            this.transactionMode = true;
+            userRepository.beginTransaction();
+            return new TransactionResponse("Transaction begin completed successfully");
         } else {
-            return new TerminateResponse("FAILED: already terminated");
+            return new TransactionResponse("Transaction already started");
         }
     }
 
-    public LaunchResponse launch() {
-        if (!isActivate) {
-            isActivate = true;
-            return new LaunchResponse("SUCCESS");
-        } else {
-            return new LaunchResponse("FAILED: already launched");
+    public TransactionResponse commitTransaction() throws LabServiceException {
+        try {
+            if (transactionMode) {
+                this.transactionMode = false;
+                userRepository.commitTransaction();
+                return new TransactionResponse("Transaction commit completed successfully");
+            } else {
+                return new TransactionResponse("Transaction is not begin");
+            }
+        } catch (LabRepositoryException e) {
+            throw new LabServiceException(e.getMessage());
         }
     }
 
-    protected boolean isActivate() {
-        return isActivate;
+    public TransactionResponse rollbackTransaction() {
+        if (transactionMode) {
+            this.transactionMode = false;
+            userRepository.rollbackTransaction();
+            return new TransactionResponse("Transaction rollback completed successfully");
+        } else {
+            return new TransactionResponse("Transaction is not begin");
+        }
     }
 }

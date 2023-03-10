@@ -5,7 +5,6 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 public class User extends AbstractEntity {
     private Long id;
     private String name;

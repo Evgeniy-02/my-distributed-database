@@ -1,20 +1,34 @@
 package ru.bmstu.labs.customdb.api;
 
-import ru.bmstu.labs.customdb.dto.LabDTO;
-import ru.bmstu.labs.customdb.dto.LaunchResponse;
-import ru.bmstu.labs.customdb.dto.TerminateResponse;
-import ru.bmstu.labs.customdb.dto.TransactionRequest;
+import io.leangen.graphql.annotations.GraphQLMutation;
+import io.leangen.graphql.spqr.spring.annotations.GraphQLApi;
+import org.springframework.stereotype.Component;
+import ru.bmstu.labs.customdb.dto.transaction.TransactionResponse;
 import ru.bmstu.labs.customdb.issue.LabServiceException;
-import ru.bmstu.labs.customdb.model.AbstractEntity;
+import ru.bmstu.labs.customdb.service.DatabaseService;
 
-import java.util.List;
+@Component
+@GraphQLApi
+public class TransactionalGraphQLApi {
 
-public interface TransactionalGraphQLApi<E extends AbstractEntity,
-        R extends LabDTO> {
+    private DatabaseService databaseService;
 
-    public LaunchResponse launch();
+    public TransactionalGraphQLApi(DatabaseService databaseService) {
+        this.databaseService = databaseService;
+    }
 
-    public TerminateResponse terminate();
+    @GraphQLMutation(name = "begin")
+    public TransactionResponse beginTransaction() {
+        return databaseService.beginTransaction();
+    }
 
-    public List<E> transaction(List<TransactionRequest> requests) throws LabServiceException;
+    @GraphQLMutation(name = "commit")
+    public TransactionResponse commitTransaction() throws LabServiceException {
+        return databaseService.commitTransaction();
+    }
+
+    @GraphQLMutation(name = "rollback")
+    public TransactionResponse rollbackTransaction() throws LabServiceException {
+        return databaseService.rollbackTransaction();
+    }
 }
