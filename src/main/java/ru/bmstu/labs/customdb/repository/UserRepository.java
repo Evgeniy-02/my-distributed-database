@@ -15,8 +15,9 @@ import java.util.*;
 @Repository
 public class UserRepository {
 
-    private final String databaseFile = "data/database_user.txt";
-    private final String logFile = "data/transaction_logs_user.txt";
+    private final String dataDirectory = "data/";
+    private final String databaseFile = "database_user.txt";
+    private final String logFile = "transaction_logs_user.txt";
 
     private HashMap<Long, User> globalStorage = new HashMap<>();
     private HashMap<Long, User> tempStorage;
@@ -33,7 +34,7 @@ public class UserRepository {
         globalStorage = new HashMap<>();
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(databaseFile));
+            BufferedReader reader = new BufferedReader(new FileReader(dataDirectory + databaseFile));
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -49,69 +50,72 @@ public class UserRepository {
         }
     }
 
-    public List<User> findAll(boolean transaction) {
-        if (transaction) {
-            return findAll(tempStorage);
+    public List<User> findAll(String alias) {
+        if (!tempStorage.isEmpty()) {
+            return findAll(alias, tempStorage);
         } else {
-            return findAll(globalStorage);
+            return findAll(alias, globalStorage);
         }
     }
 
-    public Optional<User> getById(Long id, boolean temporary) {
-        if (!temporary) {
-            return getById(id, globalStorage);
+    public Optional<User> getById(String alias, Long id) {
+        if (tempStorage.isEmpty()) {
+            return getById(alias, id, globalStorage);
         } else {
-            return getById(id, tempStorage);
+            return getById(alias, id, tempStorage);
         }
     }
 
     public User save(User user, boolean transaction) throws LabRepositoryException {
         try {
+            User savedUser;
             if (transaction) {
+                savedUser = save(user, tempStorage);
                 addLogs(new Transaction("save", mapper.writeValueAsString(user)));
-                return save(user, tempStorage);
             } else {
-                User savedUser = save(user, globalStorage);
+                savedUser = save(user, globalStorage);
                 saveToDatabase();
-                return savedUser;
             }
+            return savedUser;
         } catch (JsonProcessingException e) {
             throw new LabRepositoryException(e.getMessage());
         }
     }
 
-    public Optional<User> delete(User user, boolean transaction) throws LabRepositoryException {
+    public Optional<User> delete(String alias, User user, boolean transaction) throws LabRepositoryException {
         try {
+            Optional<User> deletedUser;
             if (transaction) {
+                deletedUser = delete(alias, user, tempStorage);
                 addLogs(new Transaction("delete", mapper.writeValueAsString(user)));
-                return delete(user, tempStorage);
             } else {
-                Optional<User> deletedUser = delete(user, globalStorage);
+                deletedUser = delete(alias, user, globalStorage);
                 saveToDatabase();
-                return deletedUser;
             }
+            return deletedUser;
         } catch (JsonProcessingException e) {
             throw new LabRepositoryException(e.getMessage());
         }
     }
 
-    public void beginTransaction() {
-        tempStorage = new HashMap<>(globalStorage);
+    public void beginTransaction(String alias) {
+        if (tempStorage == null || tempStorage.isEmpty()) {
+            tempStorage = new HashMap<>(globalStorage);
+        }
     }
 
-    public void commitTransaction() throws LabRepositoryException {
+    public void commitTransaction(String alias, boolean clearTempStorage) throws LabRepositoryException {
         globalStorage = new HashMap<>(tempStorage);
+        if (clearTempStorage) {
+            tempStorage.clear();
+        }
         saveToDatabase();
         clearLogs();
     }
 
-    public void rollbackTransaction() {
-        tempStorage.clear();
-    }
-
     private void saveToDatabase() throws LabRepositoryException {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(databaseFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(dataDirectory + databaseFile));
             for (Map.Entry<Long, User> entry : globalStorage.entrySet()) {
                 writer.append(mapper.writeValueAsString(entry.getValue())).append("\n");
             }
@@ -123,7 +127,7 @@ public class UserRepository {
 
     public void clearLogs() throws LabRepositoryException {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(logFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(dataDirectory + logFile));
             writer.close();
         } catch (IOException e) {
             throw new LabRepositoryException(e.getMessage());
@@ -132,7 +136,7 @@ public class UserRepository {
 
     private void addLogs(Transaction transaction) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(dataDirectory + logFile, true));
             writer.append(mapper.writeValueAsString(transaction)).append("\n");
             writer.close();
         } catch (IOException e) {
@@ -140,16 +144,27 @@ public class UserRepository {
         }
     }
 
-    private List<User> findAll(HashMap<Long, User> storage) {
+    private List<User> findAll(String alias, HashMap<Long, User> storage) {
         List<User> users = new ArrayList<>();
         for (Map.Entry<Long, User> entry : storage.entrySet()) {
-            users.add(entry.getValue());
+            if (alias.isEmpty() || !entry.getValue().isLocked() || entry.getValue().getLockedBy().compareTo(alias) == 0) {
+                users.add(entry.getValue());
+            }
         }
         return users;
     }
 
-    private Optional<User> getById(Long id, HashMap<Long, User> storage) {
-        return Optional.ofNullable(storage.get(id));
+    private Optional<User> getById(String alias, Long id, HashMap<Long, User> storage) {
+        Optional<User> returnedValue = Optional.ofNullable(storage.get(id));
+        if (returnedValue.isPresent()) {
+            if (alias.isEmpty() || !returnedValue.get().isLocked() || returnedValue.get().getLockedBy().compareTo(alias) == 0) {
+                return returnedValue;
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            return returnedValue;
+        }
     }
 
     private User save(User user, HashMap<Long, User> storage) {
@@ -157,7 +172,7 @@ public class UserRepository {
         return user;
     }
 
-    private Optional<User> delete(User user, HashMap<Long, User> storage) {
+    private Optional<User> delete(String alias, User user, HashMap<Long, User> storage) {
         return Optional.ofNullable(storage.remove(user.getId()));
     }
 }

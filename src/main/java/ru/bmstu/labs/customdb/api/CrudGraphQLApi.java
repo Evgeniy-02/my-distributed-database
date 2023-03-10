@@ -2,11 +2,11 @@ package ru.bmstu.labs.customdb.api;
 
 import ru.bmstu.labs.customdb.dto.LabDTO;
 import ru.bmstu.labs.customdb.issue.LabServiceException;
-import ru.bmstu.labs.customdb.model.AbstractEntity;
+import ru.bmstu.labs.customdb.model.IsolationEntity;
 
 import java.util.List;
 
-public interface CrudGraphQLApi<E extends AbstractEntity,
+public interface CrudGraphQLApi<E extends IsolationEntity,
         R extends LabDTO,
         C extends R,
         U extends R> {
@@ -15,9 +15,9 @@ public interface CrudGraphQLApi<E extends AbstractEntity,
 
     E getEntity(Long entityId) throws LabServiceException;
 
-    E createEntity(C request) throws LabServiceException;
+    E createEntity(String alias, C request) throws LabServiceException;
 
-    E updateEntity(U request) throws LabServiceException;
+    E updateEntity(String alias, U request) throws LabServiceException;
 
-    E deleteEntity(Long id) throws LabServiceException;
+    E deleteEntity(String alias, Long id) throws LabServiceException;
 }

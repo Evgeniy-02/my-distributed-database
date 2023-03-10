@@ -18,17 +18,12 @@ public class TransactionalGraphQLApi {
     }
 
     @GraphQLMutation(name = "begin")
-    public TransactionResponse beginTransaction() {
-        return databaseService.beginTransaction();
+    public TransactionResponse beginTransaction(String alias) {
+        return databaseService.beginTransaction(alias);
     }
 
     @GraphQLMutation(name = "commit")
-    public TransactionResponse commitTransaction() throws LabServiceException {
-        return databaseService.commitTransaction();
-    }
-
-    @GraphQLMutation(name = "rollback")
-    public TransactionResponse rollbackTransaction() throws LabServiceException {
-        return databaseService.rollbackTransaction();
+    public TransactionResponse commitTransaction(String alias) throws LabServiceException {
+        return databaseService.commitTransaction(alias);
     }
 }

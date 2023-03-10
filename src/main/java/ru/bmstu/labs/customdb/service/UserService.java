@@ -47,7 +47,7 @@ public class UserService {
                 if (transaction.getOperationName().equalsIgnoreCase("save")) {
                     userRepository.save(mapper.readValue(transaction.getData(), User.class), false);
                 } else if (transaction.getOperationName().equalsIgnoreCase("delete")) {
-                    userRepository.delete(mapper.readValue(transaction.getData(), User.class), false);
+                    userRepository.delete("", mapper.readValue(transaction.getData(), User.class), false);
                 } else {
                     log.warn("This type of operation not found: " + transaction.getOperationName());
                 }
@@ -64,16 +64,16 @@ public class UserService {
         }
     }
 
-    public List<User> getEntities() {
-        return userRepository.findAll(databaseService.isTransactionMode());
+    public List<User> getEntities(String alias) {
+        return userRepository.findAll(alias);
     }
 
-    public User getEntity(Long id) throws LabServiceException {
-        return userRepository.getById(id, databaseService.isTransactionMode()).orElseThrow(() ->
+    public User getEntity(String alias, Long id) throws LabServiceException {
+        return userRepository.getById(alias, id).orElseThrow(() ->
                 new LabServiceException("User not found: id=" + id));
     }
 
-    public User createEntity(UserCreateRequest request) throws LabServiceException {
+    public User createEntity(String alias, UserCreateRequest request) throws LabServiceException {
         try {
             log.debug("method=createEntity message='Create request received: {}'", request);
 
@@ -83,7 +83,7 @@ public class UserService {
             user.setLastName(request.getLastname());
             user.setEmail(request.getEmail());
 
-            userRepository.save(user, databaseService.isTransactionMode());
+            userRepository.save(user, databaseService.isTransactionMode(alias));
 
             log.debug("method=createEntity message='Entity created successfully'");
             return user;
@@ -92,11 +92,11 @@ public class UserService {
         }
     }
 
-    public User updateEntity(UserUpdateRequest request) throws LabServiceException {
+    public User updateEntity(String alias, UserUpdateRequest request) throws LabServiceException {
         try {
             log.debug("method=updateEntity message='Update request received: {}'", request);
 
-            User user = userRepository.getById(request.getId(), databaseService.isTransactionMode()).orElseThrow(() ->
+            User user = userRepository.getById(alias, request.getId()).orElseThrow(() ->
                     new LabServiceException("User not found: id=" + request.getId()));
 
             if (request.getName() != null) {
@@ -108,23 +108,27 @@ public class UserService {
             if (request.getEmail() != null) {
                 user.setEmail(request.getEmail());
             }
+            user.locked(alias);
 
-            user = userRepository.save(user, databaseService.isTransactionMode());
-
+            user = userRepository.save(user, databaseService.isTransactionMode(alias));
             log.debug("method=updateEntity message='User updated successfully: {}'", user);
+
+            user.unlocked();
+            userRepository.save(user, databaseService.isTransactionMode(alias));
+
             return user;
         } catch (LabRepositoryException e) {
             throw new LabServiceException(e.getMessage());
         }
     }
 
-    public User deleteEntity(Long id) throws LabServiceException {
+    public User deleteEntity(String alias, Long id) throws LabServiceException {
         try {
             log.debug("method=deleteEntity message='Delete request received: id={}'", id);
 
-            User user = userRepository.getById(id, databaseService.isTransactionMode()).orElseThrow(() ->
+            User user = userRepository.getById(alias, id).orElseThrow(() ->
                     new LabServiceException("User not found: id=" + id));
-            userRepository.delete(user, databaseService.isTransactionMode());
+            userRepository.delete(alias, user, databaseService.isTransactionMode(alias));
 
             log.debug("method=deleteEntity message='User deleted: {}'", user);
             return user;
