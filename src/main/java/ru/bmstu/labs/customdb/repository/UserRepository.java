@@ -20,7 +20,7 @@ public class UserRepository {
     private final String logFile = "transaction_logs_user.txt";
 
     private HashMap<Long, User> globalStorage = new HashMap<>();
-    private HashMap<Long, User> tempStorage;
+    private HashMap<Long, User> tempStorage = new HashMap<>();
 
     private ObjectMapper mapper = new ObjectMapper();
 
