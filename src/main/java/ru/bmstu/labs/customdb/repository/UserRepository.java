@@ -147,7 +147,7 @@ public class UserRepository {
     private List<User> findAll(String alias, HashMap<Long, User> storage) {
         List<User> users = new ArrayList<>();
         for (Map.Entry<Long, User> entry : storage.entrySet()) {
-            if (alias.isEmpty() || !entry.getValue().isLocked() || entry.getValue().getLockedBy().compareTo(alias) == 0) {
+            if (!entry.getValue().isLocked() || entry.getValue().getLockedBy().compareTo(alias) == 0) {
                 users.add(entry.getValue());
             }
         }
@@ -157,7 +157,7 @@ public class UserRepository {
     private Optional<User> getById(String alias, Long id, HashMap<Long, User> storage) {
         Optional<User> returnedValue = Optional.ofNullable(storage.get(id));
         if (returnedValue.isPresent()) {
-            if (alias.isEmpty() || !returnedValue.get().isLocked() || returnedValue.get().getLockedBy().compareTo(alias) == 0) {
+            if (!returnedValue.get().isLocked() || returnedValue.get().getLockedBy().compareTo(alias) == 0) {
                 return returnedValue;
             } else {
                 return Optional.empty();

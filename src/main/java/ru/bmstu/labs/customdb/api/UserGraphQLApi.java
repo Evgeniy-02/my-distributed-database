@@ -29,14 +29,14 @@ public class UserGraphQLApi implements CrudGraphQLApi<User, UserRequest, UserCre
 
     @Override
     @GraphQLQuery(name = "users")
-    public List<User> getEntities() {
-        return userService.getEntities("");
+    public List<User> getEntities(String alias) {
+        return userService.getEntities(alias);
     }
 
     @Override
     @GraphQLQuery(name = "user")
-    public User getEntity(Long id) throws LabServiceException {
-        return userService.getEntity("", id);
+    public User getEntity(String alias, Long id) throws LabServiceException {
+        return userService.getEntity(alias, id);
     }
 
     @GraphQLMutation(name = "createUser")

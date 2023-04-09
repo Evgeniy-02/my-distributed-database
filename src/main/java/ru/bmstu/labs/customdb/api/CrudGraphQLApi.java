@@ -11,9 +11,9 @@ public interface CrudGraphQLApi<E extends IsolationEntity,
         C extends R,
         U extends R> {
 
-    List<E> getEntities() throws LabServiceException;
+    List<E> getEntities(String alias) throws LabServiceException;
 
-    E getEntity(Long entityId) throws LabServiceException;
+    E getEntity(String alias, Long entityId) throws LabServiceException;
 
     E createEntity(String alias, C request) throws LabServiceException;
 

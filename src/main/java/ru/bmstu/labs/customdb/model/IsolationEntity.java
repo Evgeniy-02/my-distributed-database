@@ -1,7 +1,6 @@
 package ru.bmstu.labs.customdb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import lombok.Getter;
 
 @Getter
