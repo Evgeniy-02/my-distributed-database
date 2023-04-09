@@ -7,7 +7,7 @@ Simple Spring Boot GraphQL distributed database
 * Java 11+
 * Spring Boot
 * GraphQL
-* Lombook
+* Lombok
 * SnakeYaml
 
 ## Start with GUI
