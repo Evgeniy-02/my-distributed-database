@@ -1,5 +1,19 @@
+spring:
+  application:
+    name: custom-database
+
 server:
   port: 8080
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:7000/eureka/
+  instance:
+    hostname: localhost
+
 graphql:
   spqr:
     http:
