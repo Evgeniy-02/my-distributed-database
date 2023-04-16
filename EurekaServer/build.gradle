@@ -30,3 +30,6 @@ dependencyManagement {
 test {
 	useJUnitPlatform()
 }
+
+//mainClassName = 'java.com.betterjavacode.eurekaserver.EurekaserverApplication'
+
