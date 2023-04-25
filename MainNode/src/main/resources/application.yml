@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: main-node
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:7000/eureka/
+  instance:
+    hostname: localhost
+
+graphql:
+  spqr:
+    http:
+      enabled: true
+      endpoint: /api/graphql
+    gui:
+      enabled: true
+      endpoint: /api/graphiql
+output:
+  path:
+    logging:
+      user: data/transaction_logs_user.txt
+    data:
+      user: data/database_user.txt
+logging:
+  level:
+    ru.bmstu.labs: trace
