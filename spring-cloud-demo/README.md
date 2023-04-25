@@ -1,1 +1,0 @@
-https://betterjavacode.com/spring-boot/spring-cloud-tutorial-for-beginners
