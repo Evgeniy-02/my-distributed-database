@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: node
+
+server:
+  port: 0 #set environment SERVER_PORT=9092
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:7000/eureka/
+  instance:
+    hostname: localhost
