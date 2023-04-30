@@ -10,11 +10,11 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class UserDeleteRequest extends UserRequest {
 
-	@Override
-	public void setAlias(@GraphQLNonNull String alias) {
-		super.setAlias(alias);
-	}
-	
+    @Override
+    public void setAlias(@GraphQLNonNull String alias) {
+        super.setAlias(alias);
+    }
+
     @Override
     public void setId(@GraphQLNonNull Long id) {
         super.setId(id);
