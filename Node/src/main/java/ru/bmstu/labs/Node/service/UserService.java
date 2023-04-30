@@ -1,7 +1,9 @@
 package ru.bmstu.labs.Node.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import ru.bmstu.labs.Node.dto.transaction.Transaction;
 import ru.bmstu.labs.Node.dto.user.UserCreateRequest;
 import ru.bmstu.labs.Node.dto.user.UserDeleteRequest;
@@ -11,10 +13,6 @@ import ru.bmstu.labs.Node.issue.LabRepositoryException;
 import ru.bmstu.labs.Node.issue.LabServiceException;
 import ru.bmstu.labs.Node.model.User;
 import ru.bmstu.labs.Node.repository.UserRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
