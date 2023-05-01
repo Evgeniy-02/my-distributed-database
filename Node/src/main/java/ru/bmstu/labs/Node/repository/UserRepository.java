@@ -86,22 +86,6 @@ public class UserRepository {
         }
     }
 
-    public Optional<User> delete(String alias, User user, boolean transaction) throws LabRepositoryException {
-        try {
-            Optional<User> deletedUser;
-            if (transaction) {
-                deletedUser = delete(alias, user, tempStorage);
-                addLogs(new Transaction("delete", mapper.writeValueAsString(user)));
-            } else {
-                deletedUser = delete(alias, user, globalStorage);
-                saveToDatabase();
-            }
-            return deletedUser;
-        } catch (JsonProcessingException e) {
-            throw new LabRepositoryException(e.getMessage());
-        }
-    }
-
     public void beginTransaction(String alias) {
         if (tempStorage == null || tempStorage.isEmpty()) {
             tempStorage = new HashMap<>(globalStorage);
@@ -175,9 +159,5 @@ public class UserRepository {
     private User save(User user, HashMap<Long, User> storage) {
         storage.put(user.getId(), user);
         return user;
-    }
-
-    private Optional<User> delete(String alias, User user, HashMap<Long, User> storage) {
-        return Optional.ofNullable(storage.remove(user.getId()));
     }
 }
