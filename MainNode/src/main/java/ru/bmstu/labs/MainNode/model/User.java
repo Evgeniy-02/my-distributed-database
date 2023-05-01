@@ -12,4 +12,7 @@ public class User extends IsolationEntity {
     private String name;
     private String lastName;
     private String email;
+    private Integer createdAt;
+    private Integer updatedAt;
+    private Integer deletedAt;
 }

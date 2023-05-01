@@ -10,4 +10,7 @@ public class UserRequest implements LabDTO {
     private String name;
     private String lastname;
     private String email;
+    private Integer createdAt;
+    private Integer updatedAt;
+    private Integer deletedAt;
 }
