@@ -13,3 +13,7 @@ eureka:
       defaultZone: http://localhost:7000/eureka/
   instance:
     hostname: localhost
+
+logging:
+  level:
+    ru.bmstu.labs: trace

@@ -1,10 +1,10 @@
 package ru.bmstu.labs.MainNode.api;
 
-import java.util.List;
-
 import ru.bmstu.labs.MainNode.dto.LabDTO;
 import ru.bmstu.labs.MainNode.issue.LabServiceException;
 import ru.bmstu.labs.MainNode.model.IsolationEntity;
+
+import java.util.List;
 
 public interface CrudGraphQLApi<E extends IsolationEntity,
         T extends LabDTO,

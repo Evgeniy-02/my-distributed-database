@@ -10,11 +10,11 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class UserGetRequest extends UserRequest {
 
-	@Override
-	public void setAlias(@NonNull String alias) {
-		super.setAlias(alias);
-	}
-	
+    @Override
+    public void setAlias(@NonNull String alias) {
+        super.setAlias(alias);
+    }
+
     @Override
     public void setId(@NonNull Long id) {
         super.setId(id);

@@ -9,11 +9,11 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class UserUpdateRequest extends UserRequest {
-	
-	@Override
-	public void setAlias(@GraphQLNonNull String alias) {
-		super.setAlias(alias);
-	}
+
+    @Override
+    public void setAlias(@GraphQLNonNull String alias) {
+        super.setAlias(alias);
+    }
 
     @Override
     public void setId(@GraphQLNonNull Long id) {
