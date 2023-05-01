@@ -15,26 +15,20 @@ import java.util.*;
 
 @Repository
 public class UserRepository {
-    @Value("${server.port}")
-    private int serverPort;
-
-    private final String dataDirectory = "data/";
-    private String databaseFile = "_database_user.txt";
-    private String logFile = "_transaction_logs_user.txt";
 
     @Value("${server.port}")
-        // different nodes have different file names
-    void updateFilenames(int port) {
-        databaseFile = port + databaseFile;
-        logFile = port + logFile;
-    }
+    private String serverPort;
+
+    private static final String DATA_DIRECTORY = "data/";
+    private static final String DATABASE_FILE = "_database_user.txt";
+    private static final String LOG_FILE = "_transaction_logs_user.txt";
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    private final Logger log = LoggerFactory.getLogger(UserRepository.class);
 
     private HashMap<Long, User> globalStorage = new HashMap<>();
     private HashMap<Long, User> tempStorage = new HashMap<>();
-
-    private ObjectMapper mapper = new ObjectMapper();
-
-    private Logger log = LoggerFactory.getLogger(UserRepository.class);
 
     private UserRepository() throws LabRepositoryException {
         restoreDatabase();
@@ -44,7 +38,7 @@ public class UserRepository {
         globalStorage = new HashMap<>();
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(dataDirectory + databaseFile));
+            BufferedReader reader = new BufferedReader(new FileReader(DATA_DIRECTORY + serverPort + DATABASE_FILE));
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -125,19 +119,19 @@ public class UserRepository {
 
     private void saveToDatabase() throws LabRepositoryException {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataDirectory + databaseFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_DIRECTORY + serverPort + DATABASE_FILE));
             for (Map.Entry<Long, User> entry : globalStorage.entrySet()) {
                 writer.append(mapper.writeValueAsString(entry.getValue())).append("\n");
             }
             writer.close();
-        } catch (IOException ignored) {
-            throw new LabRepositoryException("Failed to save to database: " + ignored.getMessage());
+        } catch (IOException e) {
+            throw new LabRepositoryException("Failed to save to database: " + e.getMessage());
         }
     }
 
     public void clearLogs() throws LabRepositoryException {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataDirectory + logFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_DIRECTORY + serverPort + LOG_FILE));
             writer.close();
         } catch (IOException e) {
             throw new LabRepositoryException(e.getMessage());
@@ -146,7 +140,7 @@ public class UserRepository {
 
     private void addLogs(Transaction transaction) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataDirectory + logFile, true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_DIRECTORY + serverPort + LOG_FILE, true));
             writer.append(mapper.writeValueAsString(transaction)).append("\n");
             writer.close();
         } catch (IOException e) {
@@ -156,25 +150,26 @@ public class UserRepository {
 
     private List<User> findAll(String alias, HashMap<Long, User> storage) {
         List<User> users = new ArrayList<>();
+
         for (Map.Entry<Long, User> entry : storage.entrySet()) {
             if (!entry.getValue().isLocked() || entry.getValue().getLockedBy().compareTo(alias) == 0) {
                 users.add(entry.getValue());
             }
         }
+
         return users;
     }
 
     private Optional<User> getById(String alias, Long id, HashMap<Long, User> storage) {
         Optional<User> returnedValue = Optional.ofNullable(storage.get(id));
+
         if (returnedValue.isPresent()) {
             if (!returnedValue.get().isLocked() || returnedValue.get().getLockedBy().compareTo(alias) == 0) {
                 return returnedValue;
-            } else {
-                return Optional.empty();
             }
-        } else {
-            return returnedValue;
         }
+
+        return Optional.empty();
     }
 
     private User save(User user, HashMap<Long, User> storage) {

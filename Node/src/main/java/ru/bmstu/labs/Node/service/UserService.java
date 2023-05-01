@@ -23,15 +23,19 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private final String logFile = "data/transaction_logs_user.txt";
+    @Value("${server.port}")
+    private String serverPort;
 
-    private UserRepository userRepository;
+    private static final String DATA_DIRECTORY = "data/";
+    private static final String LOG_FILE = "_transaction_logs_user.txt";
 
-    private DatabaseService databaseService;
+    private final UserRepository userRepository;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final DatabaseService databaseService;
 
-    private Logger log = LoggerFactory.getLogger(UserService.class);
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public UserService(UserRepository userRepository, DatabaseService databaseService) throws LabServiceException {
         this.userRepository = userRepository;
@@ -41,7 +45,7 @@ public class UserService {
 
     private void restoreLogs() throws LabServiceException {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(logFile));
+            BufferedReader reader = new BufferedReader(new FileReader(DATA_DIRECTORY + serverPort + LOG_FILE));
             String line;
 
             while ((line = reader.readLine()) != null) {

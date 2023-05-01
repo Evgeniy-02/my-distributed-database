@@ -21,13 +21,20 @@ import java.util.List;
 @Service
 public class NodeService {
 
-    //    @Autowired
+    private static final String GET_ENTITY_PATH = "/user";
+    public static final String CREATE_ENTITY_PATH = "/createUser";
+    public static final String UPDATE_ENTITY_PATH = "/updateUser";
+    public static final String DELETE_ENTITY_PATH = "/deleteUser";
+    public static final String GET_ENTITIES_PATH = "/users";
+    public static final String SYNC_PATH = "/sync";
+
     private final DiscoveryClient discoveryClient;
     private final RestTemplate restTemplate;
     private final HttpHeaders headers;
 
+    private final Logger log = LoggerFactory.getLogger(NodeService.class);
+
     private List<ServiceInstance> nodes;
-//    private static int counter = 0;
 
     public NodeService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
@@ -35,17 +42,6 @@ public class NodeService {
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
     }
-
-    /*private <R> User sendRequest(String urlPath, R request) throws LabServiceException {
-        HttpEntity<R> httpRequest = new HttpEntity<>(request, headers);
-
-        String url = getOriginalNodeUri() + urlPath;
-        User user = restTemplate.postForObject(url, httpRequest, User.class);
-        if (user == null)
-            throw new LabServiceException("Received null in " + this + " from " + url);
-
-        return user;
-    }*/
 
     public List<User> getEntities(String alias) {
         updateNodeList();
@@ -62,7 +58,6 @@ public class NodeService {
         }
 
         return resultList;
-
     }
 
     public User getEntity(UserGetRequest request) throws LabServiceException {
@@ -154,8 +149,6 @@ public class NodeService {
             if (serviceInstances != null && !serviceInstances.isEmpty()) {
                 serviceInstances.sort(Comparator.comparingInt(ServiceInstance::getPort));
                 nodes = serviceInstances;
-//                if (counter >= nodes.size())
-//                    counter = 0;
             } else {
                 throw new LabServiceException("No one node-server is connected");
             }
