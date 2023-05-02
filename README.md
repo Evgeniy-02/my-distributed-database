@@ -40,8 +40,8 @@ $ ...
 
 ## Usage
 
-```
-Add user
+```graphql
+# Add user
 
 mutation {
   createUser(
@@ -53,8 +53,10 @@ mutation {
     email
   }
 }
+```
 
-Get users
+```graphql
+# Get users
 
 query {
   users(alias: "1") {
@@ -64,8 +66,10 @@ query {
     email
   }
 }
+```
 
-Delete user
+```graphql
+# Delete user
 
 mutation {
   deleteUser(
@@ -79,6 +83,30 @@ mutation {
 }
 
 //TODO
+```
+
+### Transactions
+
+To start a transaction, you need to send a request to start it, passing the transaction user as the `alias` parameter. At this moment, a temporary database is created -- a copy of the permanent database.
+
+```graphql
+mutation {
+  begin(alias: "1") {
+    message
+  }
+}
+```
+
+Next, you can start sending CRUD requests on behalf of the `alias` that was passed when the transaction began. During the transaction, the entire history of operations will be logged to the appropriate file. And the operations are performed in a temporary database. If the node falls, then, when it is restored, an attempt will be made to restore the log file as well. In this case, operations with records are already performed in a permanent database, and not in a temporary one.
+
+To complete the transaction, you need to send a request to commit the changes made. When such a request is sent, changes from the temporary database are transferred to the permanent one, and the log file is cleared.
+
+```graphql
+mutation {
+  commit(alias: "1") {
+    message
+  }
+}
 ```
 
 ## Supported operations
