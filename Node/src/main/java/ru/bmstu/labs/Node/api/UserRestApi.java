@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import ru.bmstu.labs.Node.dto.transaction.TransactionResponse;
 import ru.bmstu.labs.Node.dto.user.*;
 import ru.bmstu.labs.Node.issue.LabServiceException;
 import ru.bmstu.labs.Node.model.User;
+import ru.bmstu.labs.Node.service.DatabaseService;
 import ru.bmstu.labs.Node.service.UserService;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.List;
 public class UserRestApi {
 
     private final UserService userService;
+    private final DatabaseService databaseService;
 
     private final Logger log = LoggerFactory.getLogger(UserRestApi.class);
 
@@ -73,6 +77,21 @@ public class UserRestApi {
             return userService.syncEntity(request);
         } catch (LabServiceException e) {
             log.warn("method=syncEntity message='{}'", e.getMessage());
+            return null;
+        }
+    }
+
+    @RequestMapping(value = "/begin", method = RequestMethod.POST)
+    public TransactionResponse beginTransaction(@RequestBody String alias) {
+        return databaseService.beginTransaction(alias);
+    }
+
+    @RequestMapping(value = "/commit", method = RequestMethod.POST)
+    public TransactionResponse commitTransaction(@RequestBody String alias) {
+        try {
+            return databaseService.commitTransaction(alias);
+        } catch (LabServiceException e) {
+            log.warn("method=commitTransaction message='{}'", e.getMessage());
             return null;
         }
     }
