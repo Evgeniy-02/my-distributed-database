@@ -16,7 +16,6 @@ import java.util.*;
 @Repository
 public class UserRepository {
 
-    @Value("${server.port}")
     private String serverPort;
 
     private static final String DATA_DIRECTORY = "data/";
@@ -30,7 +29,8 @@ public class UserRepository {
     private HashMap<Long, User> globalStorage = new HashMap<>();
     private HashMap<Long, User> tempStorage = new HashMap<>();
 
-    private UserRepository() throws LabRepositoryException {
+    private UserRepository(@Value("${server.port}") String serverPort) throws LabRepositoryException {
+        this.serverPort = serverPort;
         restoreDatabase();
     }
 
