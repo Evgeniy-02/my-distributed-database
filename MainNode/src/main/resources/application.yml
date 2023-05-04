@@ -11,8 +11,11 @@ eureka:
     fetchRegistry: true
     serviceUrl:
       defaultZone: http://localhost:7000/eureka/
+    healthcheck:
+      enabled: true
   instance:
     hostname: localhost
+    health-check-url-path: /actuator/health
 
 graphql:
   spqr:
