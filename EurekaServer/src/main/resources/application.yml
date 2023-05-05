@@ -5,8 +5,25 @@ server:
 eureka:
   instance:
     hostname: localhost
+    statusPageUrl: https://${eureka.hostname}/info
+    healthCheckUrl: https://${eureka.hostname}/health
+    homePageUrl: https://${eureka.hostname}/
   client:
     registerWithEureka: false
     fetchRegistry: false
+    healthcheck:
+      enabled: true
   serviceUrl:
     defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+management:
+  endpoint:
+    info:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: "health,info"
+      discovery:
+        enabled: false

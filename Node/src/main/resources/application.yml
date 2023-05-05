@@ -11,8 +11,26 @@ eureka:
     fetchRegistry: true
     serviceUrl:
       defaultZone: http://localhost:7000/eureka/
+    healthcheck:
+      enabled: true
   instance:
     hostname: localhost
+    statusPageUrl: https://${eureka.hostname}/info
+    healthCheckUrl: https://${eureka.hostname}/health
+    homePageUrl: https://${eureka.hostname}/
+    # health-check-url-path: /actuator/health
+
+management:
+  endpoint:
+    info:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: "health,info"
+      discovery:
+        enabled: false
 
 logging:
   level:
