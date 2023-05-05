@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class NodeService {
@@ -30,6 +31,7 @@ public class NodeService {
     private static final String SYNC_PATH = "/sync";
     private static final String BEGIN_TRANSACTION = "/begin";
     private static final String COMMIT_TRANSACTION = "/commit";
+    private static final String HEALTH_PATH = "/health";
 
     private final DiscoveryClient discoveryClient;
     private final RestTemplate restTemplate;
@@ -225,7 +227,16 @@ public class NodeService {
 
             if (serviceInstances != null && !serviceInstances.isEmpty()) {
                 serviceInstances.sort(Comparator.comparingInt(ServiceInstance::getPort));
-                nodes = serviceInstances;
+                nodes = serviceInstances.parallelStream().filter(inst -> {
+                    try {
+                        final RestTemplate template = new RestTemplate();
+                        String urlPath = inst.getUri().toString() + HEALTH_PATH;
+                        String availabilityChecking = template.getForObject(urlPath, String.class);
+                        return true;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                }).collect(Collectors.toList());
             } else {
                 throw new LabServiceException("No one node-server is connected");
             }
