@@ -32,6 +32,11 @@ management:
       discovery:
         enabled: false
 
+management:
+  endpoints:
+    web:
+      base-path: /
+
 logging:
   level:
     ru.bmstu.labs: trace
