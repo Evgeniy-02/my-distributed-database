@@ -8,7 +8,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import ru.bmstu.labs.MainNode.dto.transaction.TransactionResponse;
 import ru.bmstu.labs.MainNode.dto.user.*;
 import ru.bmstu.labs.MainNode.issue.LabServiceException;
@@ -29,8 +28,8 @@ public class NodeService {
     private static final String DELETE_ENTITY_PATH = "/deleteUser";
     private static final String GET_ENTITIES_PATH = "/users";
     private static final String SYNC_PATH = "/sync";
-    private static final String BEGIN_TRANSACTION = "/begin";
-    private static final String COMMIT_TRANSACTION = "/commit";
+    private static final String BEGIN_TRANSACTION_PATH = "/begin";
+    private static final String COMMIT_TRANSACTION_PATH = "/commit";
     private static final String HEALTH_PATH = "/health";
 
     private final DiscoveryClient discoveryClient;
@@ -168,35 +167,38 @@ public class NodeService {
         return originalUser;
     }
 
-    // TODO consensus
-    public TransactionResponse beginTransaction(String alias) {
+    public List<TransactionResponse> beginTransaction(String alias) {
         log.debug("method=beginTransaction message='Begin transaction request received: alias={}'", alias);
+
+        List<TransactionResponse> responses = new ArrayList<>();
         HttpEntity<String> httpRequest = new HttpEntity<>(alias, headers);
 
         updateNodeList();
 
-        String url = nodes.get(0).getUri().toString() + BEGIN_TRANSACTION;
+        for (ServiceInstance node : nodes) {
+            String url = node.getUri().toString() + BEGIN_TRANSACTION_PATH;
 
-        TransactionResponse transactionResponse = restTemplate.postForObject(url, httpRequest,
-                TransactionResponse.class);
+            responses.add(restTemplate.postForObject(url, httpRequest, TransactionResponse.class));
+        }
 
-        return transactionResponse;
-
+        return responses;
     }
 
-    // TODO consensus
-    public TransactionResponse commitTransaction(String alias) {
+    public List<TransactionResponse> commitTransaction(String alias) {
         log.debug("method=commitTransaction message='Commit transaction request received: alias={}'", alias);
+
+        List<TransactionResponse> responses = new ArrayList<>();
         HttpEntity<String> httpRequest = new HttpEntity<>(alias, headers);
 
         updateNodeList();
 
-        String url = nodes.get(0).getUri().toString() + COMMIT_TRANSACTION;
+        for (ServiceInstance node : nodes) {
+            String url = node.getUri().toString() + COMMIT_TRANSACTION_PATH;
 
-        TransactionResponse transactionResponse = restTemplate.postForObject(url, httpRequest,
-                TransactionResponse.class);
+            responses.add(restTemplate.postForObject(url, httpRequest, TransactionResponse.class));
+        }
 
-        return transactionResponse;
+        return responses;
     }
 
     private String getOriginalNodeUri(Long requestId) {
