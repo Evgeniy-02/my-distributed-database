@@ -1,7 +1,6 @@
 package ru.bmstu.labs.Node.service;
 
 import org.springframework.stereotype.Service;
-
 import ru.bmstu.labs.Node.dto.transaction.TransactionResponse;
 import ru.bmstu.labs.Node.issue.LabRepositoryException;
 import ru.bmstu.labs.Node.issue.LabServiceException;
@@ -40,7 +39,7 @@ public class DatabaseService {
 
     public TransactionResponse commitTransaction(String alias) throws LabServiceException {
         try {
-            if (transactionMode.get(alias)) {
+            if (transactionMode.getOrDefault(alias, false)) {
                 this.transactionMode.remove(alias);
                 userRepository.commitTransaction(alias, transactionMode.isEmpty());
                 return new TransactionResponse("Transaction commit completed successfully");

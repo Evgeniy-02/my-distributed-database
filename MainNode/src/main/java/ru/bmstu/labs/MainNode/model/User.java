@@ -1,6 +1,8 @@
 package ru.bmstu.labs.MainNode.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -10,4 +12,7 @@ public class User extends IsolationEntity {
     private String name;
     private String lastName;
     private String email;
+    private Integer createdAt;
+    private Integer updatedAt;
+    private Integer deletedAt;
 }

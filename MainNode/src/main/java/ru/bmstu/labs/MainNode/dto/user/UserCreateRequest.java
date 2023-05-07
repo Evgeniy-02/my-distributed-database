@@ -1,6 +1,5 @@
 package ru.bmstu.labs.MainNode.dto.user;
 
-import io.leangen.graphql.annotations.GraphQLIgnore;
 import io.leangen.graphql.annotations.GraphQLNonNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,15 +10,15 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class UserCreateRequest extends UserRequest {
 
-    /*@Override
-    @GraphQLIgnore
+    @Override
     public void setId(Long id) {
-    }*/
-	
-	@Override
-	public void setAlias(@GraphQLNonNull String alias) {
-		super.setAlias(alias);
-	}
+        super.setId(id);
+    }
+
+    @Override
+    public void setAlias(@GraphQLNonNull String alias) {
+        super.setAlias(alias);
+    }
 
     @Override
     public void setName(@GraphQLNonNull String name) {

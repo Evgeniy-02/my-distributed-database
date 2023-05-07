@@ -2,6 +2,7 @@ package ru.bmstu.labs.MainNode.dto.transaction;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import ru.bmstu.labs.MainNode.dto.LabDTO;
@@ -10,6 +11,7 @@ import ru.bmstu.labs.MainNode.dto.LabDTO;
 @Setter
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class TransactionResponse implements LabDTO {
     private String message;
 }

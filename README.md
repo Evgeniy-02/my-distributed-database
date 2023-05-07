@@ -69,6 +69,19 @@ query {
 ```
 
 ```graphql
+# Get user
+
+query {
+  user(request: { alias: "1", id: 1 }) {
+    id
+    name
+    lastName
+    email
+  }
+}
+```
+
+```graphql
 # Delete user
 
 mutation {
