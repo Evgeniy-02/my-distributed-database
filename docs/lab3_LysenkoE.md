@@ -20,8 +20,6 @@
 
 # Лабораторная работа №3 
 
-Написать отчет: пункты, реализованные в системе: хэш-мап, распределение, консенсус. Что требует улучшения. Написать про свою часть работы, указать, с кем в команде работал, включить README.
-
 ## Введение
 
 Целью лабораторной работы было создание распределенной системы в команде. Для распределения была взяла база данных с GraphQL API ([custom-database](https://github.com/pirosveta/custom-database)), разработанная Светланой Пирожковой. Комада состояла из 2 человек: Светланы Пирожковой и Евгения Лысенко.
@@ -30,19 +28,20 @@
 
 ## Распеределение
 
-Для получения распределенной системы первым шагом было принято разработать схему системы. Схема распределенной системы, к которой мы со Светланой пришли, получилась следующей:
+Первым шагом было принято решение разработать схему системы. Схема распределенной системы, к которой мы со Светланой пришли, получилась следующей:
 
 <!-- setkeys{Gin}{width=1.inewidth} -->
 ![distributed system scheme](img/distributed-database-scheme.png "Схема распределенной системы")
 
 Система состоит из:
 
-* Главного узла (Main Node)
+* Главного узла (Main node)
 * Узлов базы данных (Node)
 
 Пользователь взаимодействует с главным узлом (Main node), отправляя запросы и получая ответы, используя язык GraphQL. Остальные узлы (Node 1, 2, ..., N) взаимодействуют только с главным узлом и координатором, выполняют функцию хранения данных, являются базами данных.
 За координацию узлов отвечает сервис EurekaServer. Все узлы регистрируются в базе данных координатора, отправля имя, адрес и порт, координатор сохраняет эти значения и, затем, выдает URL-адрес узла по его названию. 
 
+Было сделано обнаружение отказов узлов. Всякий раз, когда пользователь выполняет запрос, MainNode проверяет (через коориданатора) количество подключенных узлов и оправляет запросы только на активные узлы.
 
 ## Репликация
 
@@ -61,17 +60,29 @@
 
 1. Устойчивость к отказам:
     1. обработка операций при отказе узлов Node;
-2. покрытие возможностей GraphQL:
+    2. реализация модели защиты транзакций;
+    3. улучшение модели репликации:
+        1. автоматическое восстановление данных по копии при отказе узла;
+        2. изменение алгоритма выбора узлов для хранения и поиска копий;
+2. Покрытие возможностей GraphQL:
     1. обработка запросов на всем множестве языка GraphQL;
+3. Оптимизация:
+    1. улучшение характеристик БД при настройке под конкретную задачу;
+    2. выбор другого алгоритма для определения узла, на который будут сохраняется данные, утстойчивого к отказам системы;
+4. Параллельная обработка запросов:
+    1. разделение данных, передача на узлы, обработка, соединение результата;
+5. Координация процессов:
+    1. поиск лидера при отказе главного узла (Main node);
 
+## Вывод
 
-# Readme
+В процессе разработки распределенной базы данных в команде, мы рассмотрели основные принципы разработки распределенных систем. Задачи, решенные мной в просцессе разработки, позволили закрепить знания о подходах и задачах распределенных систем. 
 
-## my-distributed-database
+## \*Readme file for "my-distributed-database"
 
 Simple Spring Boot GraphQL distributed database based on [custom-database](https://github.com/pirosveta/custom-database)
 
-## Tools
+### Tools
 
 * Java 11+
 * Spring Boot, Cloud, Eureka
@@ -82,7 +93,7 @@ Simple Spring Boot GraphQL distributed database based on [custom-database](https
 * SnakeYaml
 * Spring Boot DevTools
 
-## How to run
+### How to run
 * Run EurekaServer
 ```shell
 $ gradle bootRun
@@ -101,14 +112,14 @@ $ SERVER_PORT=7022 mvn spring-boot:run
 $ ...
 ```
 
-## Start with GUI
+### Start with GUI
 
 [http://localhost:8080/api/graphiql](http://localhost:8080/api/graphiql)
 
 <!-- setkeys{Gin}{width=1.inewidth} -->
 ![GraphQL GUI](img/graphiql.png)
 
-## Usage
+### Usage
 
 ```graphql
 # Add user
@@ -168,7 +179,7 @@ mutation {
 //TODO
 ```
 
-### Transactions
+#### Transactions
 
 To start a transaction, you need to send a request to start it, passing the transaction user as the `alias` parameter. At this moment, a temporary database is created -- a copy of the permanent database.
 
@@ -192,16 +203,11 @@ mutation {
 }
 ```
 
-## Supported operations
-
-See Supported operations.txt <br />
-//TODO
-
-## IDE Support
+### IDE Support
 
 To use these projects in an IDE you will need the [project Lombok](http://projectlombok.org/features/index.html) agent. Full instructions can be found in the Lombok website. The sign that you need to do this is a lot of compiler errors to do with missing methods and fields.
 
-## Access to Eureka Server
+### Access to Eureka Server
 
 [http://localhost:7000/](http://localhost:7000/)
 
